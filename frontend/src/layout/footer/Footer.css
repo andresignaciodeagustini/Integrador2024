@@ -1,0 +1,112 @@
+.main-footer {
+  background-color: black;
+  border-bottom: 1px solid white;
+  padding: 20px 0;
+}
+
+.footer-columns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  padding: 0 7%;
+  margin-bottom: 3%;
+}
+
+.redes-sociales {
+  display: flex;
+  gap: 10px;
+}
+
+.redes-sociales a {
+  text-decoration: none;
+  color: white;
+}
+
+.redes-sociales .fa-icon {
+  font-size: 1.5rem;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.footer-logo img {
+  max-width: 40%;
+  height: auto;
+  margin-right: 10%;
+}
+
+.links-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.novedades-texto {
+  color: white;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-right: 10px;
+}
+
+.input-button-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-button-container input {
+  padding: 10px;
+  width: 250px;
+  font-size: 14px;
+  border: none;
+  border-bottom: 1px solid #000000;
+  background-color: transparent;
+  color: white;
+}
+
+.input-button-container button {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.input-button-container button:hover {
+  background-color: white;
+  color: black;
+}
+
+.input-button-container input:focus,
+.input-button-container button:focus {
+  outline: none;
+  border: none;
+}
+
+#enviarCorreo {
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+}
+
+.copyright {
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  border-top: 1px solid white;
+  font-size: 8px;
+  padding: 10px 5%;
+}
+
+@media (max-width: 767px) {
+  .main-footer {
+    margin-top: 5%;
+  }
+}
