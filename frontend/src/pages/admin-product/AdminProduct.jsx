@@ -19,6 +19,7 @@ export default function AdminProduct() {
 
   const [products, setProducts] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [categories, setCategories] = useState([]);
   const { token } = useUser();
@@ -52,18 +53,22 @@ export default function AdminProduct() {
 
   async function onSubmit(data) {
     try {
+      console.log("data", data)
       const formData = new FormData();
+      if(data.id) {
+        formData.append("id", data.id)
+      }
       formData.append("name", data.name);
       formData.append("price", +data.price); 
-      formData.append("image", data.image[0]);
+      formData.append("image", data.image.length ?  data.image[0] : undefined);
       formData.append("createdAt", new Date(data.createdAt).toISOString()); 
       formData.append("category", data.category);
       formData.append("description", data.description);
-  
-      if (isEditing) {
-        await updateProductData(formData);
+      console.log(data)
+      if (data.id) {
+        updateProduct(formData);
       } else {
-        await createProduct(formData);
+        createProduct(formData);
       }
   
       reset(); // Reinicia el formulario después de enviar los datos
@@ -97,7 +102,7 @@ export default function AdminProduct() {
       const URL = `http://localhost:3000/api/products/${id}`;
       await axios.delete(URL, {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: token
         }
       });
       setProducts(products.filter(product => product.id !== id));
@@ -107,31 +112,48 @@ export default function AdminProduct() {
     }
   }
 
-  async function updateProductData(productFormData) {
+  async function updateProduct(productFormData) {
     try {
-      const id = productFormData.get("id");
-      const URL = `http://localhost:3000/api/products/${id}`;
-      const headers = {
-        Authorization: token,
-      };
-  
-      console.log("Product Data being sent:", Object.fromEntries(productFormData.entries()));
-  
-      if (!id) {
-        throw new Error("ID del producto no válido");
-      }
-  
-      const response = await axios.put(URL, productFormData, { headers });
-      console.log("Response from server:", response.data);
-  
-      getProducts();
-      setIsEditing(false);
-      reset();
+        const id = productFormData.get("id");
+        console.log(id)
+        const URL = `http://localhost:3000/api/products/${id}`;
+        const headers = {
+          Authorization: token,
+        };
+        
+        console.log("Product Data being sent:", Object.fromEntries(productFormData.entries()));
+
+        if (!id) {
+            throw new Error("ID del producto no válido");
+        }
+
+        // Guarda la respuesta en una variable
+        const response = await axios.put(URL, productFormData, { headers });
+        
+        // Accede a response.data
+        console.log("Response from server:", response.data);
+
+        getProducts();
+        setIsEditing(false);
+        reset();
     } catch (error) {
-      console.error("Error al actualizar el producto:", error.response.data);
-      // Handle specific error cases if needed
+        console.error("Error al actualizar el producto:", error);
+
+        if (error.response) {
+            // Error de respuesta del servidor
+            console.error("Error del servidor:", error.response.data);
+            console.error("Estado del servidor:", error.response.status);
+            console.error("Encabezados del servidor:", error.response.headers);
+        } else if (error.request) {
+            // Error de solicitud (no se recibió respuesta)
+            console.error("Error en la solicitud:", error.request);
+        } else {
+            // Otros errores
+            console.error("Error:", error.message);
+        }
     }
-  }
+}
+
   function handleEditProduct(producto) {
     if (!producto || !producto._id) {
       console.error("Producto no válido para editar:", producto);
@@ -139,13 +161,14 @@ export default function AdminProduct() {
     }
     console.log("Editar producto", producto);
     setIsEditing(true);
-    setSelectedProductId(producto._id);
+    
     setValue("id", producto._id);
     setValue("name", producto.name);
     setValue("price", producto.price);
     setValue("category", producto.category._id);
     setValue("description", producto.description);
     setValue("createdAt", formatTimestampToInputDate(producto.createdAt));
+    // setIsOpen(true);
   }
 
   const handleDeleteClick = (id) => {

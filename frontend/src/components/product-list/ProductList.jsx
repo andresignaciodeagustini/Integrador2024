@@ -2,24 +2,26 @@ import { useState, useEffect } from "react";
 import ProductCard from "../product-card/ProductCard";
 import axios from "axios";
 import "./ProductList.css";
-import Pagination from "/src/components/pagination/Pagination"; 
+
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1); 
-  const pageItems = 5; // Número de productos por página
+  const [totalItems, setTotalItems] = useState(0);
+  const pageItems = 5; // Número de ítems por página
 
   useEffect(() => {
-    getProducts();
+    getProducts(currentPage);
   }, [currentPage]);
 
-  async function getProducts() {
+  async function getProducts(page) {
     try {
-      const URL = `http://localhost:3000/api/products?page=${currentPage}&limit=${pageItems}`;
+      const URL = `http://localhost:3000/api/products?page=${page}&limit=${pageItems}`;
       const response = await axios.get(URL);
-      const productos = response.data.products;
+      const { products: productos, total } = response.data;
       setProducts(productos);
+      setTotalItems(total);
       setIsLoading(false);
       console.log("Productos obtenidos:", productos);
     } catch (error) {
@@ -28,10 +30,12 @@ export default function ProductList() {
     }
   }
 
-  const totalItems = products.length;
-
   // Función para calcular el número total de páginas
   const totalPages = Math.ceil(totalItems / pageItems);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div>
@@ -47,13 +51,7 @@ export default function ProductList() {
         </div>
       )}
 
-      <Pagination
-        totalItems={totalItems}
-        pageItems={pageItems}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+     
     </div>
   );
 }

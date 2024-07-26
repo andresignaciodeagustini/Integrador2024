@@ -141,12 +141,18 @@
 }
 
 .admin-form-container button[type="submit"] {
-  padding: 20px 103px;
-  font-size: 10px;
+  padding: 10px 20px; /* Ajustado para un tamaño consistente */
+  font-size: 14px; /* Tamaño de fuente consistente */
   cursor: pointer;
   background-color: #000;
   color: #fff;
   border: none;
+  text-align: center; /* Centra el texto horizontalmente */
+  width: 100%; /* Ancho completo para un tamaño consistente */
+  box-sizing: border-box; /* Incluye padding y border en el ancho total */
+  display: flex; /* Usado para centrar el texto verticalmente */
+  justify-content: center; /* Centra el texto horizontalmente */
+  align-items: center; /* Centra el texto verticalmente */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -228,7 +234,7 @@
   }
 
   .admin-form-container button[type="submit"] {
-    padding: 20px 104px;
+    padding: 10px 20px; /* Tamaño consistente para dispositivos pequeños */
   }
 
   .buttons-container button.edit-button,

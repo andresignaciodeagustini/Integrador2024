@@ -7,7 +7,7 @@ export const useOrder = () => useContext(OrderContext);
 
 export const OrderProvider = ({ children }) => {
   // Estado inicial de la orden
-  const [order, setOrder] = useState([]);
+  const [order, setOrder] = useState(JSON.parse(localStorage.getItem("order")) || []);
   const [sidebarToggle, setSidebarToggle] = useState(false); // Estado del sidebar
   const [total, setTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0); // Nuevo estado para el contador del carrito
@@ -15,6 +15,7 @@ export const OrderProvider = ({ children }) => {
   useEffect(() => {
     calculateTotal();
     calculateCartCount();
+    localStorage.setItem("order", JSON.stringify(order))
   }, [order]);
 
   // Función para agregar un producto a la orden
@@ -26,8 +27,8 @@ export const OrderProvider = ({ children }) => {
     } else {
       producto.quantity = 1;
       setOrder([...order, producto]);
-      calculateTotal();
-      calculateCartCount();
+      // calculateTotal();
+      // calculateCartCount();
     }
   }
 

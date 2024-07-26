@@ -3,7 +3,7 @@ const Product = require('../models/product.models');
 // Obtener productos con paginación
 async function getProducts(req, res) {
     const page = parseInt(req.query.page) || 0;
-    const limit = parseInt(req.query.limit) || 4; // Cambia el límite a 4 productos por página
+    const limit = parseInt(req.query.limit) || 5; // Cambia el límite a 4 productos por página
 
     try {
         const products = await Product.find()
@@ -109,13 +109,21 @@ async function deleteProduct(req, res) {
 // Actualizar producto por ID
 async function updateProduct(req, res) {
     try {
-        const productId = req.params.id;
-        const update = req.body; // Aquí deberías tener los datos que quieres actualizar
-        update.updatedAt = Date.now(); // Por ejemplo, agregando updatedAt con la fecha actual
+        const id = req.params.id;
+        const data = req.body; 
+
+        if(req.file?.filename){
+            data.image = req.file.filename 
+        }else{
+            delete data.image;
+        }
+
+        data.updatedAt = Date.now();
         
-        const updatedProduct = await Product.findByIdAndUpdate(productId, update, { new: true });
+
+        const product = await Product.findByIdAndUpdate(id, data, { new: true });
         
-        if (!updatedProduct) {
+        if (!product) {
             return res.status(404).send({
                 ok: false,
                 message: "Producto no encontrado para actualizar"
@@ -125,7 +133,7 @@ async function updateProduct(req, res) {
         res.status(200).send({
             ok: true,
             message: "Producto actualizado correctamente",
-            product: updatedProduct
+            product
         });
     } catch (error) {
         console.error(error);

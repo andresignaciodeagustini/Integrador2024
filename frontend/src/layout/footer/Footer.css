@@ -1,112 +1,129 @@
-.main-footer {
-  background-color: black;
-  border-bottom: 1px solid white;
-  padding: 20px 0;
-}
-
-.footer-columns {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 30px;
-  padding: 0 7%;
-  margin-bottom: 3%;
-}
-
-.redes-sociales {
-  display: flex;
-  gap: 10px;
-}
-
-.redes-sociales a {
-  text-decoration: none;
-  color: white;
-}
-
-.redes-sociales .fa-icon {
-  font-size: 1.5rem;
-  padding: 10px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.footer-logo img {
-  max-width: 40%;
+/* Footer.css */
+.footer {
   height: auto;
-  margin-right: 10%;
+  width: 100%;
+  background-color: black; /* Fondo negro */
+  color: white; /* Texto blanco */
 }
 
-.links-footer {
+.footer .contain {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Asegura que las columnas se alineen correctamente */
 }
 
-.novedades-texto {
-  color: white;
-  font-size: 12px;
-  letter-spacing: 1px;
-  margin-right: 10px;
-}
-
-.input-button-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.input-button-container input {
-  padding: 10px;
+.footer .col {
   width: 250px;
-  font-size: 14px;
-  border: none;
-  border-bottom: 1px solid #000000;
-  background-color: transparent;
-  color: white;
+  box-sizing: border-box;
+  padding: 0px 20px 20px 20px;
 }
 
-.input-button-container button {
-  display: flex;
-  align-items: center;
-  padding: 10px;
+.footer .col h1 {
+  margin: 0;
   font-size: 12px;
-  background-color: rgba(255, 255, 255, 0);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  line-height: 17px;
+  padding: 20px 53px 5px 0px;
+  color: white; /* Títulos en blanco */
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.250em;
 }
 
-.input-button-container button:hover {
-  background-color: white;
-  color: black;
+.footer .col ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
-.input-button-container input:focus,
-.input-button-container button:focus {
-  outline: none;
-  border: none;
-}
-
-#enviarCorreo {
+.footer .col ul li {
+  color: white; /* Enlaces en blanco */
   font-size: 14px;
+  font-family: inherit;
+  padding: 5px 0px 5px 35px;
   cursor: pointer;
-  color: white;
+  transition: 0.2s;
 }
 
-.copyright {
-  color: white;
+.footer .col ul li:hover {
+  color: #ffffff; /* Mantén el color blanco al pasar el ratón */
+}
+
+.social {
+  display: flex; /* Usa flexbox para que los iconos se alineen horizontalmente */
+  align-items: center; /* Centra verticalmente los iconos */
+}
+
+.social a {
+  color: white; /* Iconos en blanco */
+  padding: 7px;
+  text-decoration: none; /* Elimina el subrayado de los enlaces */
+}
+
+.footer-left {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* Alinea el contenido a la derecha */
   align-items: center;
-  gap: 5px;
-  border-top: 1px solid white;
-  font-size: 8px;
-  padding: 10px 5%;
+  height: 110px;
+  color: white; /* Texto en blanco */
+  margin-bottom: -21px;
+  padding-right: 5%; /* Ajusta el espacio desde el borde derecho de la pantalla */
 }
 
-@media (max-width: 767px) {
-  .main-footer {
-    margin-top: 5%;
-  }
+.footer-left span {
+  margin-right: 20px;
+  color: white; /* Texto en blanco */
+}
+
+.btn-style4, .btn-style5 {
+  font-size: 11px;
+  text-align: center;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 14px;
+  height: 47px;
+  transition: all 0.5s;
+  text-decoration: none; /* Elimina el subrayado de los enlaces */
+}
+
+.btn-style4, .btn-style5 {
+  width: 150px; /* Ancho uniforme para ambos botones */
+}
+
+.btn-style4 {
+  background-color: black; /* Fondo negro */
+  border: solid 2px white; /* Borde blanco */
+  color: white; /* Texto blanco */
+}
+
+.btn-style4:hover {
+  background-color: white; /* Fondo blanco al pasar el ratón */
+  color: black; /* Texto negro al pasar el ratón */
+}
+
+.btn-style5 {
+  background-color: white; /* Fondo blanco */
+  border: solid 2px white; /* Borde blanco */
+  color: black; /* Texto negro */
+}
+
+.btn-style5:hover {
+  background-color: black; /* Fondo negro al pasar el ratón */
+  color: white; /* Texto blanco al pasar el ratón */
+}
+
+.final {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.final span {
+  color: white; /* Texto en blanco */
+  padding: 0 97px;
+  font-size: 12px;
+}
+
+.clearfix {
+  clear: both;
 }
