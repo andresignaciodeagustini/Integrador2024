@@ -85,7 +85,7 @@ export default function AdminProduct() {
         product, 
         {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: token
           }
         }
       );

@@ -3,25 +3,20 @@ import ProductCard from "../product-card/ProductCard";
 import axios from "axios";
 import "./ProductList.css";
 
-
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [totalItems, setTotalItems] = useState(0);
-  const pageItems = 5; // Número de ítems por página
 
   useEffect(() => {
-    getProducts(currentPage);
-  }, [currentPage]);
+    getProducts();
+  }, []);
 
-  async function getProducts(page) {
+  async function getProducts() {
     try {
-      const URL = `http://localhost:3000/api/products?page=${page}&limit=${pageItems}`;
+      const URL = `http://localhost:3000/api/products`;
       const response = await axios.get(URL);
-      const { products: productos, total } = response.data;
+      const { products: productos } = response.data;
       setProducts(productos);
-      setTotalItems(total);
       setIsLoading(false);
       console.log("Productos obtenidos:", productos);
     } catch (error) {
@@ -29,13 +24,6 @@ export default function ProductList() {
       setIsLoading(false);
     }
   }
-
-  // Función para calcular el número total de páginas
-  const totalPages = Math.ceil(totalItems / pageItems);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
 
   return (
     <div>
@@ -46,12 +34,10 @@ export default function ProductList() {
       ) : (
         <div className="product-card-container">
           {products.map((prod) => (
-            <ProductCard key={prod._id} product={prod} />
+            <ProductCard key={prod.id} product={prod} />
           ))}
         </div>
       )}
-
-     
     </div>
   );
 }
