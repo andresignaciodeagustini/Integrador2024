@@ -1,23 +1,39 @@
 const Product = require('../models/product.models');
 
-// Obtener productos con paginación
+
 async function getProducts(req, res) {
-    const page = parseInt(req.query.page) || 0;
-    const limit = parseInt(req.query.limit) || 5; // Cambia el límite a 4 productos por página
+    
 
     try {
+        const page = parseInt(req.query.page) || 0;
+        const limit = parseInt(req.query.limit) || 3; // Cambia el límite a 4 productos por página
+       
+        const filter = [];
+
+        if (req.query.name) filter.push ({name : { $regex: req.query.name, $options: 'i'}}) 
+        if (req.query.category) filter.push ({category : req.query.category}) 
+        if (req.query.minPrice) filter.push ({category : req.query.minPrice}) 
+        if (req.query.maxPrice) filter.push ({category : req.query.maxPrice}) 
+
+        if(filter.length === 0 ) filter.push({})
+
+        console.log(filter)
+       
+       
         const products = await Product.find()
             .populate("category", "name")
             .skip(page * limit)
             .limit(limit);
 
-        const totalProducts = await Product.countDocuments();
+        const total = await Product.countDocuments({
+            $and: filter
+        });
 
         res.status(200).send({
             ok: true,
             message: "Productos obtenidos correctamente",
             products,
-            totalProducts
+            total
         });
     } catch (error) {
         console.error(error);

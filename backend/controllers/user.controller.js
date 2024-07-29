@@ -30,33 +30,25 @@ async function getUserById(req, res) {
         });
     }
 }
-
 async function getUsers(req, res) {
     try {
-        console.log(req.query);
-        const limiteUsuarios = req.query.limit || 2;
-        const page = req.query.page || 0;
+        const limit = parseInt(req.query.limit, 10) || 3; // Número de usuarios por página
+        const page = parseInt(req.query.page, 10) || 0;   // Número de página, empezando desde 0
 
-        const [users, total] = await Promise.all([ 
-        
-        User.find()
-                                .select({ password: 0 })
-                                .collation({locale:'es'})
-                                .limit(limiteUsuarios)
-                                .skip(page* limiteUsuarios)
-                                .sort({ fullname: 1 }),
-        User.countDocuments()
-            
-        ])                
-                            
-      
-
-        if (users.length === 0) {
-            return res.status(404).send({
-                ok: false,
-                message: "No se encontraron usuarios"
-            });
+        const filters = {};
+        if (req.query.name) {
+            filters.fullName = { $regex: req.query.name, $options: 'i' };
         }
+
+        const [users, total] = await Promise.all([
+            User.find(filters)
+                .select({ password: 0 })
+                .collation({ locale: 'es' })
+                .skip(page * limit)
+                .limit(limit)
+                .sort({ fullname: 1 }),
+            User.countDocuments(filters)
+        ]);
 
         res.status(200).send({
             ok: true,
@@ -66,15 +58,13 @@ async function getUsers(req, res) {
         });
 
     } catch (error) {
-        console.log(error);
+        console.log("Error en getUsers:", error);
         res.status(500).send({
             ok: false,
             message: "Error al obtener usuarios"
         });
     }
 }
-
-
 async function postUser(req, res) {
     try {
         if (req.user?.role !== "ADMIN_ROLE") {
@@ -137,12 +127,21 @@ if (req.user.role !== 'ADMIN_ROLE' && req.user._id !== req.params.id){
 
 
         const newData = req.body;
-       
 
-        // TODO: Hashear password en el update
-        if (newData.password) {
-            newData.password = await bcrypt.hash(newData.password, saltRounds);
-        }
+
+                        
+                    // TODO: Hashear password en el update
+                if (newData.password) {
+                    newData.password = await bcrypt.hash(newData.password, saltRounds);
+                }
+
+                // TODO: Resetear Role
+                if (req.user.role !== 'ADMIN_ROLE') {
+                    newData.role = undefined;
+                }
+
+                // Asegúrate de que 'id' es necesario para el logging en esta parte.
+                console.log(id);
 
         const updUser = await User.findByIdAndUpdate(id, newData, { new: true });
 

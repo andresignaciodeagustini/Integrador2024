@@ -15,14 +15,15 @@ const userSchema = new Schema({
         minlength: 5,
         maxlength: 100,
         trim: true,
-        lowercase:true,
-        validate: {
-            validator: (value) => {
-                const regex = /^[A-Za-z0-9._+\-']+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
-                return regex.test(value);
-            },
-            message: 'Correo electrónico inválido'
-        }
+        lowercase: true
+        // Elimina la validación personalizada del formato del email
+        // validate: {
+        //     validator: (value) => {
+        //         const regex = /^[A-Za-z0-9._+\-']+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+        //         return regex.test(value);
+        //     },
+        //     message: 'Correo electrónico inválido'
+        // }
     },
     password: {
         type: String,
