@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import Swal from "sweetalert2";
-import './AdminUser.css'; // Importa tu archivo CSS para AdminUser si lo tienes separado
-import Header from '../../layout/header/Header'; // Importa el componente Header
+import './AdminUser.css';
+import Header from '../../layout/header/Header';
+import Pagination from "../../components/pagination/Pagination";
+import useApi from "../../services/interceptor/Interceptor";
 
 export default function AdminUser() {
   const {
@@ -13,21 +14,25 @@ export default function AdminUser() {
     formState: { errors },
     reset
   } = useForm();
-
+  
   const [users, setUsers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [totalItems, setTotalItems] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageItems, setPageItems] = useState(2);
+  const api = useApi();
 
   useEffect(() => {
     getUsers();
-  }, []);
+  }, [page, pageItems]);
 
   async function getUsers() {
     try {
-      const URL = "https://665e5e8e1e9017dc16efd098.mockapi.io/users";
-      const response = await axios.get(URL);
-      const usuarios = response.data;
-      setUsers(usuarios);
-      console.log(response);
+      const response = await api.get(`/users?limit=${pageItems}&page=${page}`);
+      const { users: fetchedUsers, total } = response.data;
+      setUsers(fetchedUsers);
+      setTotalItems(total);
+      console.log("Usuarios obtenidos:", fetchedUsers);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     }
@@ -45,12 +50,10 @@ export default function AdminUser() {
 
   async function createUser(data) {
     try {
-      const URL = "https://665e5e8e1e9017dc16efd098.mockapi.io/users";
-      const newUser = await axios.post(URL, data);
+      const newUser = await api.post(`/users`, data);
       console.log("Nuevo usuario creado:", newUser.data);
       reset();
-
-      setUsers([...users, newUser.data]);
+      getUsers();
     } catch (error) {
       console.error("Error al crear el usuario:", error);
     }
@@ -58,9 +61,7 @@ export default function AdminUser() {
 
   async function deleteUser(id) {
     try {
-      const URL = `https://665e5e8e1e9017dc16efd098.mockapi.io/users/${id}`;
-      await axios.delete(URL);
-      setUsers(users.filter(user => user.id !== id));
+      await api.delete(`/users/${id}`);
       getUsers();
     } catch (error) {
       console.error("Error al eliminar el usuario:", error);
@@ -69,8 +70,7 @@ export default function AdminUser() {
 
   async function updateUser(user) {
     try {
-      const URL = `https://665e5e8e1e9017dc16efd098.mockapi.io/users/${user.id}`;
-      await axios.put(URL, user);
+      await api.put(`/users/${user.id}`, user);
       getUsers();
       setIsEditing(false);
       reset();
@@ -83,11 +83,11 @@ export default function AdminUser() {
     console.log("Editar usuario", usuario);
     setIsEditing(true);
     setValue("id", usuario.id);
-    setValue("fullName", usuario.fullName || ''); 
+    setValue("fullName", usuario.fullName || '');
     setValue("email", usuario.email);
-    setValue("image", usuario.image || ''); 
-    setValue("bornDate", usuario.bornDate || ''); 
-    setValue("location", usuario.location || ''); 
+    setValue("image", usuario.image || '');
+    setValue("bornDate", usuario.bornDate || '');
+    setValue("location", usuario.location || '');
   }
 
   const handleDeleteClick = (id) => {
@@ -111,7 +111,7 @@ export default function AdminUser() {
 
   return (
     <>
-      <Header /> {/* Incluye el Header */}
+      <Header />
       <div className="admin-dashboard">
         <div className="admin-form-container">
           <form className="admin-form" onSubmit={handleSubmit(onSubmit)}>
@@ -147,20 +147,9 @@ export default function AdminUser() {
             </div>
 
             <div className="form-group">
-              <label>Imagen (URL):</label>
-              <input
-                type="url"
-                {...register("image", {
-                  required: "Ingresa una URL válida de imagen"
-                })}
-              />
-              {errors.image && <span className="input-error">{errors.image.message}</span>}
-            </div>
-
-            <div className="form-group">
               <label>Fecha de nacimiento:</label>
               <input
-                type="number"
+                type="date"
                 {...register("bornDate", {
                   required: "Este campo es requerido"
                 })}
@@ -173,22 +162,10 @@ export default function AdminUser() {
               <input
                 type="password"
                 {...register("password", {
-                  required: "Este campo es requerido",
-                  minLength: {
-                    value: 6,
-                    message: "La contraseña debe tener al menos 6 caracteres"
-                  }
+                  required: "Este campo es requerido"
                 })}
               />
               {errors.password && <span className="input-error">{errors.password.message}</span>}
-            </div>
-
-            <div className="form-group">
-              <label>Ubicación:</label>
-              <input
-                type="text"
-                {...register("location")}
-              />
             </div>
 
             <div className="form-group">
@@ -217,21 +194,34 @@ export default function AdminUser() {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.fullName}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>{user.isActive ? 'Sí' : 'No'}</td>
-                <td>
-                  <div className="buttons-container">
-                    <button className="edit-button" onClick={() => handleEditUser(user)}>EDITAR</button>
-                    <button className="delete-button" onClick={() => handleDeleteClick(user.id)}>BORRAR</button>
-                  </div>
-                </td>
-              </tr>
+             <tr key={user._id}>
+               <td>{user.fullname}</td>
+               <td>{user.email}</td>
+               <td>{user.role}</td>
+               <td>{user.isActive ? 'Sí' : 'No'}</td>
+               <td>
+                 <div className="buttons-container">
+                   <button className="edit-button" onClick={() => handleEditUser(user)}>EDITAR</button>
+                   <button className="delete-button" onClick={() => handleDeleteClick(user.id)}>BORRAR</button>
+                 </div>
+               </td>
+             </tr>
             ))}
           </tbody>
         </table>
+        <Pagination
+          totalItems={totalItems}
+          pageItems={pageItems}
+          currentPage={page}
+          loadPage={getUsers}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPageItemsChange={(newPageItems) => setPageItems(newPageItems)}
+        />
+        <select defaultValue={pageItems} onChange={(e) => setPageItems(e.target.value)}>
+            <option value="2">2 Items</option>
+            <option value="3">3 Items</option>
+            <option value="5">5 Items</option>
+        </select>
       </div>
     </>
   );

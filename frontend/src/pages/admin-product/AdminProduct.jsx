@@ -8,16 +8,19 @@ import Header from '../../layout/header/Header';
 import Overview from '../overview/Overview'; 
 import { useUser } from "../../context/UserContext";
 import Pagination from "../../components/pagination/Pagination";
+import useApi from "../../services/interceptor/Interceptor";
 
 export default function AdminProduct() {
   const {
+
+    
     register,
     setValue,
     handleSubmit,
     formState: { errors },
     reset
   } = useForm();
-
+  const api =useApi();
   const [products, setProducts] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -35,7 +38,7 @@ export default function AdminProduct() {
 
   async function getCategories() {
     try {
-      const response = await axios.get(`http://localhost:3000/api/categories`);
+      const response = await api.get(`/categories`);
       const categoriesDB = response.data.categories;
       setCategories(categoriesDB);
     } catch (error) {
@@ -45,7 +48,7 @@ export default function AdminProduct() {
 
   async function getProducts({ page = 0 }) {
     try {
-      const response = await axios.get(`http://localhost:3000/api/products?limit=${pageItems}&page=${page}`);
+      const response = await api.get(`/products?limit=${pageItems}&page=${page}`);
       const { products, total } = response.data;
       setProducts(products);
       setTotalItems(total);
@@ -84,7 +87,7 @@ export default function AdminProduct() {
 
   async function createProduct(product) {
     try {
-      const newProduct = await axios.post(`http://localhost:3000/api/products/`, 
+      const newProduct = await api.post(`/products/`, 
         product, 
         {
           headers: {
@@ -102,12 +105,8 @@ export default function AdminProduct() {
 
   async function deleteProduct(id) {
     try {
-      const URL = `http://localhost:3000/api/products/${id}`;
-      await axios.delete(URL, {
-        headers: {
-          Authorization: token
-        }
-      });
+      
+      await api.delete(`products/${id}`);
       setProducts(products.filter(product => product.id !== id));
       getProducts({ page: 0 });
     } catch (error) {
@@ -119,11 +118,8 @@ export default function AdminProduct() {
     try {
       const id = productFormData.get("id");
       console.log(id);
-      const URL = `http://localhost:3000/api/products/${id}`;
-      const headers = {
-        Authorization: token,
-      };
-        
+      
+      
       console.log("Product Data being sent:", Object.fromEntries(productFormData.entries()));
 
       if (!id) {
@@ -131,7 +127,7 @@ export default function AdminProduct() {
       }
 
       // Guarda la respuesta en una variable
-      const response = await axios.put(URL, productFormData, { headers });
+      const response = await api.put(`/products/${id}`, productFormData);
         
       // Accede a response.data
       console.log("Response from server:", response.data);
