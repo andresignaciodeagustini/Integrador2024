@@ -23,10 +23,10 @@ export default function AdminUser() {
   const api = useApi();
 
   useEffect(() => {
-    getUsers();
+    getUsers({});
   }, [page, pageItems]);
 
-  async function getUsers() {
+  async function getUsers({page=0}) {
     try {
       const response = await api.get(`/users?limit=${pageItems}&page=${page}`);
       const { users: fetchedUsers, total } = response.data;
@@ -53,7 +53,7 @@ export default function AdminUser() {
       const newUser = await api.post(`/users`, data);
       console.log("Nuevo usuario creado:", newUser.data);
       reset();
-      getUsers();
+      getUsers({});
     } catch (error) {
       console.error("Error al crear el usuario:", error);
     }
@@ -62,7 +62,7 @@ export default function AdminUser() {
   async function deleteUser(id) {
     try {
       await api.delete(`/users/${id}`);
-      getUsers();
+      getUsers({});
     } catch (error) {
       console.error("Error al eliminar el usuario:", error);
     }
@@ -211,11 +211,8 @@ export default function AdminUser() {
         </table>
         <Pagination
           totalItems={totalItems}
-          pageItems={pageItems}
-          currentPage={page}
           loadPage={getUsers}
-          onPageChange={(newPage) => setPage(newPage)}
-          onPageItemsChange={(newPageItems) => setPageItems(newPageItems)}
+          pageItems={pageItems}
         />
         <select defaultValue={pageItems} onChange={(e) => setPageItems(e.target.value)}>
             <option value="2">2 Items</option>

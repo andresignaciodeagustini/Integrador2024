@@ -48,3 +48,11 @@ body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, a {
     text-transform: capitalize;
   }
 }
+
+
+.admin-table-container{
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
