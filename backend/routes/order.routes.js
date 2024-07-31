@@ -1,12 +1,11 @@
 const router = require('express').Router();
 const orderController = require('../controllers/order.controller');
+const auth = require('../middlewares/auth');
 
-router.post("/order", orderController.postOrder);
-//crear orden
+// Crear orden
+router.post("/orders", auth, orderController.postOrder);
 
-//router.post("/order", orderController.postOrder)
+// Obtener todas las órdenes
+router.get("/orders/:idUser?", auth, orderController.getOrders);
 
-//obtener todas las ordernes  
-//router.get("/order", orderController.getOrderById);
-
-module.exports = router; // Corrección aquí
+module.exports = router;
