@@ -1,4 +1,4 @@
-const Product = require('../models/product.models');
+const Product = require('../models/product.model');
 
 // Obtener productos con paginación
 async function getProducts(req, res) {

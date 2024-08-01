@@ -29,11 +29,13 @@ export default function OrderSidebar() {
       <div className="list-container">
         <h2>Orden actual:</h2>
         <ul className="order-list">
-          {order.map((product) => (
-            <li className="order-item" key={product.id}>
+          {order?.products?.map((product) => (
+            <li className="order-item" key={product.product}>
               <img
                 className="order-image"
-                src={product.image || "https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png"}
+                src={
+                   product.image ? `${import.meta.env.VITE_IMAGES_URL}/products/${product.image}` 
+                   : "https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png"}
                 alt=""
               />
               <div className="order-item-name" title={product.name}>
@@ -44,7 +46,7 @@ export default function OrderSidebar() {
                   type="number"
                   className="order-quantity-input"
                   value={product.quantity}
-                  onChange={(evt) => handleChangeQuantity(product.id, evt.target.value)}
+                  onChange={(evt) => handleChangeQuantity(product.product, evt.target.valueAsNumber)}
                 />
               </div>
               <div className="order-price">$ {product.price}</div>
@@ -53,7 +55,7 @@ export default function OrderSidebar() {
                 <FontAwesomeIcon
                   icon={faTrash}
                   title="Eliminar producto"
-                  onClick={() => removeItem(product.id)}
+                  onClick={() => removeItem(product.product)}
                 />
               </div>
             </li>
@@ -62,9 +64,9 @@ export default function OrderSidebar() {
       </div>
       <div className="order-finish">
         <div className="total">
-          <div className="total-count">Items: {order.reduce((acc, item) => acc + item.quantity, 0)}</div>
+          <div className="total-count">Items: {order?.reduce((acc, item) => acc + item.quantity, 0)}</div>
           <div className="total-price">
-            Total $ <span>{total}</span>
+            Total $ <span>{order.total}</span>
           </div>
         </div>
         <div className="order-purchase">
