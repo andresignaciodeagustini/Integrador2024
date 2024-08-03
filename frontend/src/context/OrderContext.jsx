@@ -3,48 +3,80 @@ import Swal from 'sweetalert2';
 
 const OrderContext = createContext();
 
+const ORDER = {
+  user:"",
+  products:[],
+  total: 0
+}
+
 export const useOrder = () => useContext(OrderContext);
 
 export const OrderProvider = ({ children }) => {
   // Estado inicial de la orden
-  const [order, setOrder] = useState(JSON.parse(localStorage.getItem("order")) || []);
+  const [order, setOrder] = useState(JSON.parse(localStorage.getItem("order")) || ORDER);
   const [sidebarToggle, setSidebarToggle] = useState(false); // Estado del sidebar
   const [total, setTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0); // Nuevo estado para el contador del carrito
 
   useEffect(() => {
-    calculateTotal();
+    localStorage.setItem("order", JSON.stringify(order));
+    calculateTotal(order.products);
     calculateCartCount();
-    localStorage.setItem("order", JSON.stringify(order))
+   
   }, [order]);
 
   // Función para agregar un producto a la orden
   function addOrderItem(producto) {
-    const existingProduct = order.find(prod => prod.id === producto.id);
+    const product = order.products.find(prod => prod.product === producto._id);
 
-    if (existingProduct) {
-      handleChangeQuantity(existingProduct.id, existingProduct.quantity + 1);
+    if (product) {
+      handleChangeQuantity(product.product, product.quantity + 1);
     } else {
-      producto.quantity = 1;
-      setOrder([...order, producto]);
-      // calculateTotal();
-      // calculateCartCount();
+    
+
+      const newOrderProduct = {
+        product: producto._id,
+        quantity:1,
+        price:producto.price,
+        image:producto.image,
+        name: producto.name
+
+      }
+      
+    const products = [...order.products, newOrderProduct
+
+     ];
+     const total = calculateTotal(products)
+
+      setOrder({...order,
+                    products, 
+                    total
+        });
+
+
     }
   }
 
   // Calcular el total de la orden
-  function calculateTotal() {
-    let totalCount = 0;
-    order.forEach((prod) => {
-      totalCount += prod.price * prod.quantity;
-    });
-    setTotal(totalCount);
-  }
+ // Calcular el total de la orden
+function calculateTotal(ARRAY_CONTAR = []) {
+  let totalCount = 0;
+  ARRAY_CONTAR.forEach((prod) => {
+    totalCount += prod.price * prod.quantity;
+  });
+  return totalCount;
+}
+
+useEffect(() => {
+  localStorage.setItem("order", JSON.stringify(order));
+  calculateTotal(order.products); // Pasa el arreglo de productos
+  calculateCartCount();
+}, [order]);
 
   // Calcular la cantidad total de productos en el carrito
   function calculateCartCount() {
     let count = 0;
-    order.forEach((prod) => {
+    order.products.forEach((prod) => {
       count += prod.quantity;
     });
     setCartCount(count);
@@ -52,15 +84,19 @@ export const OrderProvider = ({ children }) => {
 
   // Manejar cambios en la cantidad de un producto
   function handleChangeQuantity(id, quantity) {
-    const updateOrder = order.map(item => {
-      if (item.id === id) {
-        return { ...item, quantity: Number(quantity) };
-      }
-      return item;
+    const updProducts = order.products.map((item) => {
+      if (item.product === id) {
+        item.quantity = +quantity;
+
+       }
+       return item;
+      
+      
     });
-    setOrder(updateOrder);
-    calculateTotal();
-    calculateCartCount();
+
+    const total = calculateTotal(updProducts)
+    setOrder({...order, products:updProducts, total});
+   
   }
 
   // Eliminar un producto de la orden
@@ -75,10 +111,10 @@ export const OrderProvider = ({ children }) => {
       reverseButtons: true,
     }).then(result => {
       if (result.isConfirmed) {
-        const updatedOrder = order.filter(prod => prod.id !== id);
-        setOrder(updatedOrder);
-        calculateTotal();
-        calculateCartCount();
+        const products = order.products.filter((prod) => prod.product !== id);
+        const total = calculateTotal(products);
+        setOrder({...order, products, total});
+        
       }
     });
   }
@@ -93,8 +129,23 @@ export const OrderProvider = ({ children }) => {
     setSidebarToggle(false);
   }
 
+  
+  
+  
+  
+  
+  
   return (
-    <OrderContext.Provider value={{ order, total, cartCount, addOrderItem, handleChangeQuantity, removeItem, sidebarToggle, toggleSidebarOrder, closeSidebar }}>
+    <OrderContext.Provider value={{ 
+      order, 
+      total, 
+      cartCount, 
+      addOrderItem, 
+      handleChangeQuantity, 
+      removeItem, 
+      sidebarToggle,
+       toggleSidebarOrder,
+        closeSidebar }}>
       {children}
     </OrderContext.Provider>
   );

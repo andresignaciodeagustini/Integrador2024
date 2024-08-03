@@ -29,7 +29,7 @@ export default function OrderSidebar() {
       <div className="list-container">
         <h2>Orden actual:</h2>
         <ul className="order-list">
-          {order?.products?.map((product) => (
+          {order.products.map((product) => (
             <li className="order-item" key={product.product}>
               <img
                 className="order-image"
@@ -64,7 +64,7 @@ export default function OrderSidebar() {
       </div>
       <div className="order-finish">
         <div className="total">
-          <div className="total-count">Items: {order?.reduce((acc, item) => acc + item.quantity, 0)}</div>
+          <div className="total-count">Items: {order.products.reduce((acc, item) => acc + item.quantity, 0)}</div>
           <div className="total-price">
             Total $ <span>{order.total}</span>
           </div>
