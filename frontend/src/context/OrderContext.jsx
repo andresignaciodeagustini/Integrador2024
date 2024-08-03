@@ -21,7 +21,7 @@ export const OrderProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("order", JSON.stringify(order));
     calculateTotal(order.products);
-    calculateCartCount();
+    CartCount();
    
   }, [order]);
 
@@ -70,11 +70,11 @@ function calculateTotal(ARRAY_CONTAR = []) {
 useEffect(() => {
   localStorage.setItem("order", JSON.stringify(order));
   calculateTotal(order.products); // Pasa el arreglo de productos
-  calculateCartCount();
+  CartCount();
 }, [order]);
 
   // Calcular la cantidad total de productos en el carrito
-  function calculateCartCount() {
+  function CartCount() {
     let count = 0;
     order.products.forEach((prod) => {
       count += prod.quantity;

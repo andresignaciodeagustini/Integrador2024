@@ -9,7 +9,7 @@ import { useOrder } from '../../context/OrderContext';
 import { useUser } from '../../context/UserContext';
 
 const Header = ({ isProductDetailPage }) => {
-  const { toggleSidebarOrder, order, sidebarToggle } = useOrder();
+  const { toggleSidebarOrder, order, sidebarToggle,cartCount } = useOrder();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -77,16 +77,16 @@ const Header = ({ isProductDetailPage }) => {
       <div className={`user-info ${isScrolled || isSpecialPage || isProductDetailPage ? 'black-icons' : 'white-icons'}`}>
         <div className='user-cart-container'>
           <FontAwesomeIcon
-            icon={faBagShopping}
+              icon={faBagShopping}
             onClick={handleCartClick}
             className="bag-shopping"
             style={{ cursor: 'pointer' }}
           />
-          {order.length > 0 && (
-            <div className="cart-counter" data-count={order.length}>
-              {order.reduce((acc, item) => acc + item.quantity, 0)}
-            </div>
-          )}
+          {cartCount > 0 && (
+    <div className="cart-counter" data-count={cartCount}>
+      {cartCount}
+    </div>
+)}
         </div>
         <span
           className="material-symbols-outlined user-icon"

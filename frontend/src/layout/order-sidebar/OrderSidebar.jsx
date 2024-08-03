@@ -5,7 +5,7 @@ import { useOrder } from '../../context/OrderContext';
 import './OrderSidebar.css';
 
 export default function OrderSidebar() {
-  const { order, total, handleChangeQuantity, removeItem, sidebarToggle, closeSidebar } = useOrder();
+  const { order, cart, handleChangeQuantity, removeItem, sidebarToggle, closeSidebar } = useOrder();
   const [isMobileView, setIsMobileView] = useState(false);
 
   useEffect(() => {
