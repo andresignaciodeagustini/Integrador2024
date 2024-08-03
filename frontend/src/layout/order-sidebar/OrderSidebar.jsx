@@ -5,7 +5,7 @@ import { useOrder } from '../../context/OrderContext';
 import './OrderSidebar.css';
 
 export default function OrderSidebar() {
-  const { order, cart, handleChangeQuantity, removeItem, sidebarToggle, closeSidebar } = useOrder();
+  const { order, total, handleChangeQuantity, removeItem, sidebarToggle, closeSidebar, postOrder } = useOrder();
   const [isMobileView, setIsMobileView] = useState(false);
 
   useEffect(() => {
@@ -21,6 +21,10 @@ export default function OrderSidebar() {
     };
   }, []);
 
+  // Log para verificar el total y la orden actual cada vez que el componente se renderiza
+  console.log("OrderSidebar render - Total:", total);
+  console.log("OrderSidebar render - Order:", order);
+
   return (
     <div className={`order-wrapper ${sidebarToggle ? 'active' : ''} ${isMobileView ? 'mobile-view' : ''}`}>
       <div className="close-icon" onClick={closeSidebar}>
@@ -29,13 +33,13 @@ export default function OrderSidebar() {
       <div className="list-container">
         <h2>Orden actual:</h2>
         <ul className="order-list">
-          {order.products.map((product) => (
-            <li className="order-item" key={product.product}>
+          {order.map((product) => (
+            <li className="order-item" key={product._id}>
               <img
                 className="order-image"
                 src={
-                   product.image ? `${import.meta.env.VITE_IMAGES_URL}/products/${product.image}` 
-                   : "https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png"}
+                  product.image ? `${import.meta.env.VITE_IMAGES_URL}/products/${product.image}` 
+                  : "https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png"}
                 alt=""
               />
               <div className="order-item-name" title={product.name}>
@@ -46,7 +50,7 @@ export default function OrderSidebar() {
                   type="number"
                   className="order-quantity-input"
                   value={product.quantity}
-                  onChange={(evt) => handleChangeQuantity(product.product, evt.target.valueAsNumber)}
+                  onChange={(evt) => handleChangeQuantity(product._id, evt.target.valueAsNumber)}
                 />
               </div>
               <div className="order-price">$ {product.price}</div>
@@ -55,7 +59,7 @@ export default function OrderSidebar() {
                 <FontAwesomeIcon
                   icon={faTrash}
                   title="Eliminar producto"
-                  onClick={() => removeItem(product.product)}
+                  onClick={() => removeItem(product._id)}
                 />
               </div>
             </li>
@@ -64,13 +68,13 @@ export default function OrderSidebar() {
       </div>
       <div className="order-finish">
         <div className="total">
-          <div className="total-count">Items: {order.products.reduce((acc, item) => acc + item.quantity, 0)}</div>
+          <div className="total-count">Items: {order.reduce((acc, item) => acc + item.quantity, 0)}</div>
           <div className="total-price">
-            Total $ <span>{order.total}</span>
+            Total $ <span>{total}</span>
           </div>
         </div>
         <div className="order-purchase">
-          {/* Aquí podrías agregar botones o acciones relacionadas con la compra */}
+          <button className="btn" onClick={() => postOrder()}>Finalizar compra</button>
         </div>
       </div>
     </div>
