@@ -3,31 +3,38 @@ import { useParams, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useOrder } from "../../context/OrderContext";
-import useApi from "../../services/interceptor/Interceptor"; // Ajusta la importación según la ubicación de tu archivo
+import useApi from "../../services/interceptor/Interceptor";
 import Header from "../../layout/header/Header";
 import OrderSidebar from "../../layout/order-sidebar/OrderSidebar";
 import "./ProductDetail.css";
 
 const ProductDetail = () => {
-  const { addOrderItem } = useOrder(); 
-  const api = useApi(); // Obtiene la instancia de la API configurada
+  const { addOrderItem } = useOrder();
+  const api = useApi();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [detailVisible, setDetailVisible] = useState(true); 
-  const [addedToBagMessage, setAddedToBagMessage] = useState(false); 
+  const [detailVisible, setDetailVisible] = useState(true);
+  const [addedToBagMessage, setAddedToBagMessage] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
+    console.log("ID del producto desde useParams:", id);
+
+    if (!id) {
+      console.error("ID del producto no encontrado");
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
+        console.log("Iniciando solicitud para obtener el producto con ID:", id);
         const response = await api.get(`/products/${id}`);
-        const formattedProduct = {
-          ...response.data,
-          createdAt: formatTimestampToInputDate(response.data.createdAt),
-        };
-        setProduct(formattedProduct);
+        console.log("Respuesta de la API para el producto:", response);
+        console.log("Datos del producto recibidos:", response.data);
+        setProduct(response.data.product);  // Asegúrate de acceder a la propiedad correcta
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error al obtener el producto:", error);
       } finally {
         setLoading(false);
       }
@@ -35,11 +42,6 @@ const ProductDetail = () => {
 
     fetchProduct();
   }, [id, api]);
-
-  function formatTimestampToInputDate(timestamp) {
-    const date = new Date(timestamp);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-  }
 
   const closeDetail = () => {
     setDetailVisible(false);
@@ -75,7 +77,7 @@ const ProductDetail = () => {
         <section className="product-details">
           <div className="product-header">
             <div className="image-detail">
-              <img src={product.image} alt={product.name} />
+              <img src={`http://localhost:3000/images/products/${product.image}`} alt={product.name} />
             </div>
             <div className="product-action">
               <h2>{product.name}</h2>
@@ -112,14 +114,14 @@ const ProductDetail = () => {
           </div>
 
           <div className="product-text">
-            <h4>{`Art. Nr. ${product.id}. Aranceles de importación incluidos`}</h4>
+            <h4>{`Art. Nr. ${product._id}. Aranceles de importación incluidos`}</h4>
             <p>{product.description}</p>
-            <p>{product.details}</p>
+            {/* Asegúrate de que `product.details` esté definido y tenga un valor válido */}
+            {product.details && <p>{product.details}</p>}
           </div>
         </section>
       </div>
 
-      {/* Integración del componente OrderSidebar */}
       <OrderSidebar />
     </>
   );

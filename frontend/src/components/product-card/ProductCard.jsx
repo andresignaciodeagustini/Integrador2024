@@ -19,7 +19,7 @@ export default function ProductCard({ product }) {
         <div className="product-image">
           <img src={`http://localhost:3000/images/products/${product.image}`} alt={product.name} />
           <div className="button-container">
-            <Link className="btn-icon btn-icon-eye" to={`/product-detail/${product.id}`}>
+            <Link className="btn-icon btn-icon-eye" to={`/product-detail/${product._id}`}>
               <FontAwesomeIcon 
                 icon={faEye} 
                 title="Ver más"
