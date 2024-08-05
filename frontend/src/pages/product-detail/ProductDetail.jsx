@@ -1,41 +1,40 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useOrder } from "../../context/OrderContext";
+import useApi from "../../services/interceptor/Interceptor"; // Ajusta la importación según la ubicación de tu archivo
 import Header from "../../layout/header/Header";
-import OrderSidebar from "../../layout/order-sidebar/OrderSidebar"; // Importa OrderSidebar
+import OrderSidebar from "../../layout/order-sidebar/OrderSidebar";
 import "./ProductDetail.css";
-
-const URL = "https://665e5e8e1e9017dc16efd098.mockapi.io";
 
 const ProductDetail = () => {
   const { addOrderItem } = useOrder(); 
+  const api = useApi(); // Obtiene la instancia de la API configurada
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailVisible, setDetailVisible] = useState(true); 
   const [addedToBagMessage, setAddedToBagMessage] = useState(false); 
   const { id } = useParams();
 
-  async function getProductById(id) {
-    try {
-      const response = await axios.get(`${URL}/products/${id}`);
-      const formattedProduct = {
-        ...response.data,
-        createdAt: formatTimestampToInputDate(response.data.createdAt),
-      };
-      setProduct(formattedProduct);
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    getProductById(id);
-  }, [id]);
+    const fetchProduct = async () => {
+      try {
+        const response = await api.get(`/products/${id}`);
+        const formattedProduct = {
+          ...response.data,
+          createdAt: formatTimestampToInputDate(response.data.createdAt),
+        };
+        setProduct(formattedProduct);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, api]);
 
   function formatTimestampToInputDate(timestamp) {
     const date = new Date(timestamp);
@@ -49,9 +48,9 @@ const ProductDetail = () => {
   const handleAddToBag = () => {
     if (product) {
       addOrderItem(product);
-      setAddedToBagMessage(true); 
+      setAddedToBagMessage(true);
       setTimeout(() => {
-        setAddedToBagMessage(false); 
+        setAddedToBagMessage(false);
       }, 5000);
     }
   };
@@ -61,7 +60,11 @@ const ProductDetail = () => {
   }
 
   if (!detailVisible) {
-    return null; 
+    return null;
+  }
+
+  if (!product) {
+    return <h4>Producto no encontrado</h4>;
   }
 
   return (
@@ -88,7 +91,7 @@ const ProductDetail = () => {
                   <button value="2">2</button>
                   <button value="4">4</button>
                   <button value="6">6</button>
-                  <button value="16">8</button>
+                  <button value="8">8</button>
                 </div>
               </div>
               <div className="bottom-detail">
@@ -100,7 +103,7 @@ const ProductDetail = () => {
                 )}
               </div>
             </div>
-         
+
             <div className="product-header-icon">
               <Link to="/">
                 <FontAwesomeIcon icon={faTimes} className="custom-icon" onClick={closeDetail} />
@@ -116,7 +119,7 @@ const ProductDetail = () => {
         </section>
       </div>
 
-      {/* Aquí integrar el componente OrderSidebar */}
+      {/* Integración del componente OrderSidebar */}
       <OrderSidebar />
     </>
   );

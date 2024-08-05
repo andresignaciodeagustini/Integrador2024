@@ -12,7 +12,11 @@ export const OrderProvider = ({ children }) => {
   const api = useApi();
 
   // Estado inicial del carrito
-  const [order, setOrder] = useState([]);
+  const [order, setOrder] = useState(() => {
+    // Recupera el carrito del localStorage si existe, o inicializa como vacío
+    const savedOrder = localStorage.getItem('order');
+    return savedOrder ? JSON.parse(savedOrder) : [];
+  });
   const [total, setTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [sidebarToggle, setSidebarToggle] = useState(false);
@@ -22,7 +26,7 @@ export const OrderProvider = ({ children }) => {
     const fetchCart = async () => {
       if (user) {
         try {
-          const response = await api.get(`/cart/${user._id}`);
+          const response = await api.get(`/order/${user._id}`);
           setOrder(response.data || []);
         } catch (error) {
           console.log("Error fetching cart:", error);
@@ -33,11 +37,23 @@ export const OrderProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
+    // Guarda el estado del carrito en localStorage cuando se actualiza
+    localStorage.setItem('order', JSON.stringify(order));
     calculateTotal();
     CartCount();
   }, [order]);
 
   async function addOrderItem(producto) {
+    if (!user) { // Verifica si el usuario está logueado
+      Swal.fire({
+        title: "Error",
+        text: "Debe estar logueado para agregar productos al carrito",
+        icon: "warning",
+        timer: 4000
+      });
+      return;
+    }
+
     const existingProduct = order.find(prod => prod._id === producto._id);
 
     if (existingProduct) {
@@ -46,12 +62,10 @@ export const OrderProvider = ({ children }) => {
       const updatedOrder = [...order, { ...producto, quantity: 1 }];
       setOrder(updatedOrder);
 
-      if (user) {
-        try {
-          await api.post(`/cart/${user._id}`, { product: producto._id, quantity: 1 });
-        } catch (error) {
-          console.log("Error adding item to cart:", error);
-        }
+      try {
+        await api.post(`/order/${user._id}`, { product: producto._id, quantity: 1 });
+      } catch (error) {
+        console.log("Error adding item to cart:", error);
       }
     }
   }
@@ -86,7 +100,7 @@ export const OrderProvider = ({ children }) => {
 
     if (user) {
       try {
-        await api.put(`/cart/${user._id}`, { product: id, quantity });
+        await api.put(`/order/${user._id}`, { product: id, quantity });
       } catch (error) {
         console.log("Error updating item quantity:", error);
       }
@@ -109,7 +123,7 @@ export const OrderProvider = ({ children }) => {
 
         if (user) {
           try {
-            api.delete(`/cart/${user._id}/${id}`);
+            api.delete(`/order/${user._id}/${id}`);
           } catch (error) {
             console.log("Error removing item from cart:", error);
           }
@@ -155,7 +169,7 @@ export const OrderProvider = ({ children }) => {
 
       if (user) {
         try {
-          await api.delete(`/cart/${user._id}`);
+          await api.delete(`/order/${user._id}`);
         } catch (error) {
           console.log("Error clearing cart after order:", error);
         }
@@ -170,7 +184,7 @@ export const OrderProvider = ({ children }) => {
   const handleLogout = async () => {
     if (user) {
       try {
-        await api.delete(`/cart/${user._id}`);
+        await api.delete(`/order/${user._id}`);
       } catch (error) {
         console.log("Error clearing cart on logout:", error);
       }
