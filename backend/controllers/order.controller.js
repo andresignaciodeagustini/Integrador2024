@@ -3,6 +3,23 @@ const Product = require('../models/product.model');
 
 async function postOrder(req, res) {
     try {
+
+        if (req.user._id !== req.body.user){
+            return res.status(400).send({
+                ok:false,
+                message: "No puedes crear una orden para otro usuario"
+            })
+        }
+        if (req.body.products.lenght == 0){
+            return res.status(400).send({
+                ok:false,
+                message: "No puedes crear una orden para otro usuario"
+            })
+        }
+
+
+
+
         // Validar productos antes de crear la orden
         await orderProductPriceVerification(req.body.products, req.body.total);
 
@@ -47,7 +64,7 @@ async function orderProductPriceVerification(products, total) {
 
 async function getOrders(req, res) {
     try {
-        const id = req.params.idUser;
+        const id = req.params.id;
         let filter;
 
         if (req.user.role === "ADMIN_ROLE") {

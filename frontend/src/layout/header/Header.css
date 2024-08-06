@@ -125,6 +125,7 @@
   border: 1px solid white;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
+  font-weight: 700;
 }
 
 .season button:hover {
