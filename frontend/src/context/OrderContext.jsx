@@ -11,9 +11,7 @@ export const OrderProvider = ({ children }) => {
   const { user, token, logout } = useUser(); // Agrega logout desde useUser
   const api = useApi();
 
-  // Estado inicial del carrito
   const [order, setOrder] = useState(() => {
-    // Recupera el carrito del localStorage si existe, o inicializa como vacío
     const savedOrder = localStorage.getItem('order');
     return savedOrder ? JSON.parse(savedOrder) : [];
   });
@@ -21,7 +19,6 @@ export const OrderProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
   const [sidebarToggle, setSidebarToggle] = useState(false);
 
-  // Recupera el carrito del usuario cuando se inicia sesión
   useEffect(() => {
     const fetchCart = async () => {
       if (user) {
@@ -37,14 +34,13 @@ export const OrderProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    // Guarda el estado del carrito en localStorage cuando se actualiza
     localStorage.setItem('order', JSON.stringify(order));
     calculateTotal();
     CartCount();
   }, [order]);
 
   async function addOrderItem(producto) {
-    if (!user) { // Verifica si el usuario está logueado
+    if (!user) {
       Swal.fire({
         title: "Error",
         text: "Debe estar logueado para agregar productos al carrito",
@@ -180,31 +176,58 @@ export const OrderProvider = ({ children }) => {
     }
   }
 
-  // Manejar el cierre de sesión
-  const handleLogout = async () => {
-    if (user) {
-      try {
-        await api.delete(`/order/${user._id}`);
-      } catch (error) {
-        console.log("Error clearing cart on logout:", error);
+  async function saveOrderOnLogout() {
+    try {
+      if (!user || !token) {
+        Swal.fire({
+          title: "Error",
+          text: "Debe estar logueado para guardar la orden",
+          icon: "warning",
+          timer: 4000
+        });
+        return;
       }
+      const products = order.map(item => ({
+        quantity: item.quantity,
+        productId: item._id
+      }));
+
+      const nuevaOrdenGuardada = {
+        total,
+        user: user._id,
+        products
+      };
+
+      await api.post("/savedorder", nuevaOrdenGuardada);
+    } catch (error) {
+      console.log("Error saving order on logout:", error);
     }
-    logout(); // Ejecuta la lógica de cierre de sesión
-  };
+  }
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      saveOrderOnLogout();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [order]);
 
   return (
-    <OrderContext.Provider value={{ 
-      order, 
-      total, 
-      cartCount, 
-      addOrderItem, 
-      handleChangeQuantity, 
-      removeItem, 
+    <OrderContext.Provider value={{
+      order,
+      total,
+      cartCount,
       sidebarToggle,
-      toggleSidebarOrder,
+      toggleSidebarOrder,  // Ensure this function is correctly included
       closeSidebar,
+      addOrderItem,
+      handleChangeQuantity,
+      removeItem,
       postOrder,
-      handleLogout // Proporciona la función de cierre de sesión
+      saveOrderOnLogout
     }}>
       {children}
     </OrderContext.Provider>

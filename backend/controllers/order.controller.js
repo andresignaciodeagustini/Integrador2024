@@ -10,7 +10,7 @@ async function postOrder(req, res) {
                 message: "No puedes crear una orden para otro usuario"
             })
         }
-        if (req.body.products.lenght == 0){
+        if (req.body.products.length == 0){
             return res.status(400).send({
                 ok:false,
                 message: "No puedes crear una orden para otro usuario"
@@ -93,5 +93,6 @@ async function getOrders(req, res) {
 
 module.exports = {
     postOrder,
-    getOrders // Exportar la función `getOrders`
+    getOrders,
+    orderProductPriceVerification // Exportar la función `getOrders`
 };

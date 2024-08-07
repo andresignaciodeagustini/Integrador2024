@@ -9,7 +9,7 @@ import { useOrder } from '../../context/OrderContext';
 import { useUser } from '../../context/UserContext';
 
 const Header = ({ isProductDetailPage }) => {
-  const { toggleSidebarOrder, order, sidebarToggle,cartCount } = useOrder();
+  const { toggleSidebarOrder, order, sidebarToggle, cartCount, saveOrderOnLogout } = useOrder();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -48,6 +48,12 @@ const Header = ({ isProductDetailPage }) => {
 
   const { user, logout } = useUser();
 
+  const handleLogout = async () => {
+    await saveOrderOnLogout(); // Guardar la orden si es necesario
+    logout(); // Luego cerrar sesión
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className={`header-nav ${isScrolled || isSpecialPage || isProductDetailPage ? 'scroll-bg-white' : 'transparent-bg'} ${sidebarToggle && isMobileView ? 'hide-header' : ''} ${isProductDetailPage ? 'product-detail-header' : ''}`}>
       <NavLink to="/" className="logo">
@@ -57,7 +63,7 @@ const Header = ({ isProductDetailPage }) => {
       <nav className={`nav-links ${isMenuOpen ? 'open' : ''} ${isMobileView ? 'mobile-view' : ''}`}>
         <NavLink to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>PRINCIPAL</NavLink>
         {user ? (
-          <NavLink to="/" className="nav-link" onClick={() => { logout(); setIsMenuOpen(false); }}>LOGOUT</NavLink>
+          <NavLink to="/" className="nav-link" onClick={handleLogout}>LOGOUT</NavLink>
         ) : (
           <NavLink to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>LOGIN</NavLink>
         )}
@@ -83,10 +89,10 @@ const Header = ({ isProductDetailPage }) => {
             style={{ cursor: 'pointer' }}
           />
           {cartCount > 0 && (
-    <div className="cart-counter" data-count={cartCount}>
-      {cartCount}
-    </div>
-)}
+            <div className="cart-counter" data-count={cartCount}>
+              {cartCount}
+            </div>
+          )}
         </div>
         <span
           className="material-symbols-outlined user-icon"

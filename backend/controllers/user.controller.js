@@ -171,6 +171,7 @@ async function login(req, res) {
         const email = req.body.email?.toLowerCase();
         const password = req.body.password;
 
+        // Verificar que tanto email como password estén presentes
         if (!email || !password) {
             return res.status(400).send({
                 ok: false,
@@ -178,11 +179,14 @@ async function login(req, res) {
             });
         }
 
-        console.log(email, password);
+        console.log('Email:', email);
+        console.log('Password ingresada:', password);
     
+        // Buscar al usuario en la base de datos
         const user = await User.findOne({ email: { $regex: email, $options: "i" } });
-        console.log(user);
+        console.log('Usuario encontrado:', user);
 
+        // Verificar si el usuario existe
         if (!user) {
             return res.status(404).send({
                 ok: false,
@@ -191,7 +195,10 @@ async function login(req, res) {
         }
 
         // Verificación de la contraseña
+        console.log('Hash de la contraseña almacenado:', user.password);
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Contraseña coincide:', isMatch);
+
         if (!isMatch) {
             return res.status(401).send({
                 ok: false,
@@ -199,8 +206,10 @@ async function login(req, res) {
             });
         }
 
-        user.password = undefined; // Remover la contraseña del usuario para no enviarla en el token
+        // Eliminar la contraseña del objeto usuario antes de enviar la respuesta
+        user.password = undefined;
 
+        // Firmar el token JWT
         const token = jwt.sign({ user }, secret, { expiresIn: '1h' });
 
         res.status(200).send({
