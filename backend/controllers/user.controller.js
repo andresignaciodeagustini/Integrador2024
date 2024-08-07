@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const PreviousOrder = require('../models/previousorder.model');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const saltRounds = 10; 
@@ -30,6 +31,7 @@ async function getUserById(req, res) {
         });
     }
 }
+
 async function getUsers(req, res) {
     try {
         const limit = parseInt(req.query.limit, 10) || 3; // Número de usuarios por página
@@ -37,7 +39,7 @@ async function getUsers(req, res) {
 
         const filters = {};
         if (req.query.name) {
-            filters.fullName = { $regex: req.query.name, $options: 'i' };
+            filters.fullname = { $regex: req.query.name, $options: 'i' };
         }
 
         const [users, total] = await Promise.all([
@@ -65,6 +67,7 @@ async function getUsers(req, res) {
         });
     }
 }
+
 async function postUser(req, res) {
     try {
         if (req.user?.role !== "ADMIN_ROLE") {
@@ -75,6 +78,15 @@ async function postUser(req, res) {
 
         const user = new User(req.body);
         const newUser = await user.save();
+
+        // Inicializa una lista vacía de PreviousOrder para el nuevo usuario
+        const initialOrder = new PreviousOrder({ user: newUser._id, products: [] });
+        await initialOrder.save();
+
+        // Asocia la nueva entrada de PreviousOrder con el usuario
+        newUser.previousOrders = [initialOrder._id];
+        await newUser.save();
+
         newUser.password = undefined;
 
         res.status(201).send(newUser);
@@ -100,6 +112,9 @@ async function deleteUser(req, res) {
             });
         }
 
+        // Eliminar la PreviousOrder asociada al usuario
+        await PreviousOrder.deleteMany({ user: id });
+
         res.status(200).send({
             ok: true,
             message: "El usuario fue borrado correctamente"
@@ -118,30 +133,24 @@ async function updateUser(req, res) {
     try {
         const id = req.params.idUpdate;
 
-if (req.user.role !== 'ADMIN_ROLE' && req.user._id !== req.params.id){
-        return res.status (400).send ({
-            ok: false,
-            message: "No se puede editar este usuario"
-        })
-}
-
+        if (req.user.role !== 'ADMIN_ROLE' && req.user._id !== req.params.id){
+            return res.status(400).send({
+                ok: false,
+                message: "No se puede editar este usuario"
+            });
+        }
 
         const newData = req.body;
 
+        // Hashear password en el update
+        if (newData.password) {
+            newData.password = await bcrypt.hash(newData.password, saltRounds);
+        }
 
-                        
-                    // TODO: Hashear password en el update
-                if (newData.password) {
-                    newData.password = await bcrypt.hash(newData.password, saltRounds);
-                }
-
-                // TODO: Resetear Role
-                if (req.user.role !== 'ADMIN_ROLE') {
-                    newData.role = undefined;
-                }
-
-                // Asegúrate de que 'id' es necesario para el logging en esta parte.
-                console.log(id);
+        // Resetear Role
+        if (req.user.role !== 'ADMIN_ROLE') {
+            newData.role = undefined;
+        }
 
         const updUser = await User.findByIdAndUpdate(id, newData, { new: true });
 
@@ -178,10 +187,7 @@ async function login(req, res) {
             });
         }
 
-        console.log(email, password);
-    
         const user = await User.findOne({ email: { $regex: email, $options: "i" } });
-        console.log(user);
 
         if (!user) {
             return res.status(404).send({
