@@ -74,7 +74,7 @@ async function getOrders(req, res) {
         }
 
         const orders = await Order.find(filter)
-            .populate("user", "fullname")
+            .populate("user", "fullName")
             .populate("products.product");
 
         return res.status(200).send({
