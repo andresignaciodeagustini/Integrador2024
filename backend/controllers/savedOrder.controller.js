@@ -1,6 +1,5 @@
-const SavedOrder = require("../models/savedOrder.model");
+const SavedOrder = require('../models/savedOrder.model');
 
-// Guardar pedido al hacer logout
 async function saveOrderOnLogout(req, res) {
     try {
         const { userId, products, total } = req.body;
@@ -14,13 +13,12 @@ async function saveOrderOnLogout(req, res) {
 
         await savedOrder.save();
 
-        res.status(201).json({ message: "Order saved on logout", order: savedOrder });
+        res.status(201).json({ message: "Orden guardada al cerrar sesión", order: savedOrder });
     } catch (error) {
-        res.status(500).json({ message: "Error saving order", error: error.message });
+        res.status(500).json({ message: "Error al guardar la orden", error: error.message });
     }
 }
 
-// Obtener todas las órdenes guardadas para un usuario
 async function getSavedOrders(req, res) {
     try {
         const userId = req.params.idUser || req.user.id; // Obtener idUser de los parámetros de la URL o del usuario autenticado
@@ -29,7 +27,7 @@ async function getSavedOrders(req, res) {
 
         res.status(200).json({ orders: savedOrders });
     } catch (error) {
-        res.status(500).json({ message: "Error retrieving saved orders", error: error.message });
+        res.status(500).json({ message: "Error al obtener órdenes guardadas", error: error.message });
     }
 }
 

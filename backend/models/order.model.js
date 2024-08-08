@@ -8,8 +8,8 @@ const orderSchema = new Schema({
         quantity: { type: Number, required: true, min: 1, default: 1 },
     }],
     user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    createdAt: { type: Number, default: Date.now },
-    updatedAt: { type: Number, default: Date.now },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
     status: {
         type: String,
         required: true,
