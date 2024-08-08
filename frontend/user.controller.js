@@ -44,7 +44,7 @@ async function getUsers(req, res) {
                                 .collation({locale:'es'})
                                 .limit(limiteUsuarios)
                                 .skip(page* limiteUsuarios)
-                                .sort({ fullname: 1 }),
+                                .sort({ fullName: 1 }),
         User.countDocuments()
             
         ])                

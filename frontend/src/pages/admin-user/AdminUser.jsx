@@ -195,7 +195,7 @@ export default function AdminUser() {
           <tbody>
             {users.map((user) => (
              <tr key={user._id}>
-               <td>{user.fullname}</td>
+               <td>{user.fullName}</td>
                <td>{user.email}</td>
                <td>{user.role}</td>
                <td>{user.isActive ? 'Sí' : 'No'}</td>
